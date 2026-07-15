@@ -59,37 +59,81 @@ export async function createApp(): Promise<Express> {
     })
   );
 
-  app.use(
-    cors({
-      origin: (origin, callback) => {
-        const developmentOrigins = [
-          "http://localhost:9000", 
-          "http://localhost:3000", 
-          "https://sandbox.embed.apollographql.com", 
-          "https://embed.apollo.io",
-          "https://belhomz-api.onrender.com",
-          "https://belhomz-api.onrender.com/graphql",
-          "https://belhomz.vercel.app",
-          "**.cdninstagram.com", "**.fbcdn.net", "proxy.apify.com"
-        ];
+  const allowedOrigins = [
+      "http://localhost:3000",
+      "http://localhost:9000",
 
-        if (process.env.CLIENT_URL) {
-          developmentOrigins.push(process.env.CLIENT_URL);
-        }
+      // Production Frontend
+      "https://belhomz.vercel.app",
 
-        const allowedOrigins = process.env.NODE_ENV === "production"
-          ? [process.env.CLIENT_URL].filter(Boolean) as string[]
-          : developmentOrigins;
+      // Render API (for Apollo landing page)
+      "https://belhomz-api.onrender.com",
 
-        if (!origin || allowedOrigins.includes(origin)) {
-          callback(null, true);
-        } else {
-          callback(new Error(`CORS policy blocked access from origin: ${origin}`));
-        }
-      },
-      credentials: true,
-    })
-  );
+      // Apollo Studio / Sandbox
+      "https://studio.apollographql.com",
+      "https://sandbox.embed.apollographql.com",
+      "https://embed.apollo.io",
+
+      // Optional env variables
+      process.env.CLIENT_URL,
+      process.env.RENDER_EXTERNAL_URL,
+].filter(Boolean) as string[];
+
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      // Allow server-to-server requests (Postman, curl, health checks)
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (
+        process.env.NODE_ENV !== "production" ||
+        allowedOrigins.includes(origin)
+      ) {
+        return callback(null, true);
+      }
+
+      logger.error(`Blocked CORS Origin: ${origin}`);
+
+      callback(new Error(`CORS policy blocked access from origin: ${origin}`));
+    },
+    credentials: true,
+  })
+);
+
+  // app.use(
+  //   cors({
+  //     origin: (origin, callback) => {
+  //       const developmentOrigins = [
+  //         "http://localhost:9000", 
+  //         "http://localhost:3000", 
+  //         "https://sandbox.embed.apollographql.com", 
+  //         "https://embed.apollo.io",
+  //         "https://belhomz-api.onrender.com",
+  //         "https://belhomz-api.onrender.com/graphql",
+  //         "https://belhomz.vercel.app",
+  //         "**.cdninstagram.com", "**.fbcdn.net", "proxy.apify.com"
+  //       ];
+
+  //       if (process.env.CLIENT_URL) {
+  //         developmentOrigins.push(process.env.CLIENT_URL);
+  //       }
+
+  //       const allowedOrigins = process.env.NODE_ENV === "production"
+  //         ? [process.env.CLIENT_URL].filter(Boolean) as string[]
+  //         : developmentOrigins;
+
+  //       if (!origin || allowedOrigins.includes(origin)) {
+  //         callback(null, true);
+  //       } else {
+  //         callback(new Error(`CORS policy blocked access from origin: ${origin}`));
+  //       }
+  //     },
+  //     credentials: true,
+  //   })
+  // );
 
   app.use(hpp());
   app.use(express.json({ limit: "2mb" }));
@@ -127,6 +171,7 @@ export async function createApp(): Promise<Express> {
   // Apollo GraphQL Server
   const apolloServer = new ApolloServer({ 
     schema,
+      introspection: true,
     formatError: formatGraphQLError,
     plugins: [
       ApolloServerPluginLandingPageLocalDefault({
