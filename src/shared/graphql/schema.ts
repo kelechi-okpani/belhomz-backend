@@ -28,8 +28,7 @@ import { enquiryTypeDefs } from "../../modules/enquiry/graphql/enquiry.typeDefs"
 import { analyticsTypeDefs } from "../../modules/analytics/graphql/analytics.typeDefs";
 import { analyticsResolvers } from "../../modules/analytics/graphql/analytics.resolvers";
 
-
-import { scalarTypeDefs, scalarResolvers } from "@/src/shared/graphql/scalar";
+import { scalarTypeDefs, scalarResolvers } from "./scalar";
 
 const typeDefs = mergeTypeDefs([
    scalarTypeDefs,
