@@ -19,14 +19,14 @@ import { paymentResolvers } from "../../modules/payments/graphql/payment.resolve
 import { activityTypeDefs } from "../activity/graphql/activity.typeDefs";
 import { activityResolvers } from "../activity/graphql/activity.resolvers";
 
-import { instagramResolvers } from "@/src/modules/instagram/graphql/instagram.resolvers";
-import { instagramTypeDefs } from "@/src/modules/instagram/graphql/instagram.typeDefs";
+import { instagramResolvers } from "../../modules/instagram/graphql/instagram.resolvers";
+import { instagramTypeDefs } from "../../modules/instagram/graphql/instagram.typeDefs";
 
-import { enquiryResolvers } from "@/src/modules/enquiry/graphql/enquiry.resolvers";
-import { enquiryTypeDefs } from "@/src/modules/enquiry/graphql/enquiry.typeDefs";
+import { enquiryResolvers } from "../../modules/enquiry/graphql/enquiry.resolvers";
+import { enquiryTypeDefs } from "../../modules/enquiry/graphql/enquiry.typeDefs";
 
-import { analyticsTypeDefs } from "@/src/modules/analytics/graphql/analytics.typeDefs";
-import { analyticsResolvers } from "@/src/modules/analytics/graphql/analytics.resolvers";
+import { analyticsTypeDefs } from "../../modules/analytics/graphql/analytics.typeDefs";
+import { analyticsResolvers } from "../../modules/analytics/graphql/analytics.resolvers";
 
 
 import { scalarTypeDefs, scalarResolvers } from "@/src/shared/graphql/scalar";
@@ -53,6 +53,8 @@ const resolvers = mergeResolvers([
   paymentResolvers,
   activityResolvers,
   instagramResolvers,
+
+
   enquiryResolvers,
   analyticsResolvers 
 ]);
