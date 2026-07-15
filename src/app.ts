@@ -67,6 +67,9 @@ export async function createApp(): Promise<Express> {
           "http://localhost:3000", 
           "https://sandbox.embed.apollographql.com", 
           "https://embed.apollo.io",
+          "https://belhomz-api.onrender.com",
+          "https://belhomz-api.onrender.com/graphql",
+          "https://belhomz.vercel.app",
           "**.cdninstagram.com", "**.fbcdn.net", "proxy.apify.com"
         ];
 
