@@ -1,0 +1,7 @@
+# Tells the extension exactly where to generate and read the static schema file
+schema: "./src/shared/graphql/schema.graphql"
+
+extensions:
+  endpoints:
+    default:
+      url: "http://localhost:9000/graphql" # Points to your running Express/Apollo app
