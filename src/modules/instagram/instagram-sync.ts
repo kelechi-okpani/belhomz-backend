@@ -100,7 +100,6 @@ export const syncApifyInstagramFeed = async (force = false): Promise<void> => {
     }
 };
 
-
 /**
  * SCHEDULED CRON JOB (Executes daily at Midnight)
  * Re-activated and optimized to run asynchronously
@@ -109,7 +108,6 @@ cron.schedule('0 0 * * *', async () => {
     console.log('⏰ [Cron] Midnight trigger: Executing automated feed update...');
     await syncApifyInstagramFeed(true); // Force true bypasses 23h skip check for safety during automated schedules
 });
-
 
 /* ==========================================================================
    🚀 STARTUP INITIALIZATION HOOK
