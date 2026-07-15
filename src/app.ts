@@ -135,6 +135,14 @@ export async function createApp(): Promise<Express> {
 
   await apolloServer.start();
   
+  app.get("/", (_req, res) => {
+  res.json({
+    success: true,
+    service: "Belhomz API",
+    status: "Running",
+  });
+});
+
   app.use(
     "/graphql",
     express.json(),
@@ -148,156 +156,3 @@ export async function createApp(): Promise<Express> {
   
   return app;
 }
-
-
-
-// import express, { Express, Request, Response } from "express";
-// import cors from "cors";
-// import helmet from "helmet";
-// import hpp from "hpp";
-// import { ApolloServer } from "@apollo/server";
-// import { expressMiddleware } from "@as-integrations/express5";
-// import { env } from "./config/env";
-// import { schema } from "./shared/graphql/schema";
-// import { buildContext } from "./shared/graphql/context";
-// import { generalLimiter } from "./shared/middlewares/rateLimiter";
-// import { sanitizeInput } from "./shared/middlewares/sanitize";
-// import { errorHandler, notFoundHandler } from "./shared/middlewares/errorHandler";
-// import { propertyRoutes } from "./modules/properties/routes/property.routes";
-// // import { ApolloServerPluginLandingPageGraphQLPlayground } from "@apollo/server-plugin-landing-page-graphql-playground";
-
-// import { ApolloServerPluginLandingPageLocalDefault } from "@apollo/server/plugin/landingPage/default";
-
-// import { leadRoutes } from "./modules/leads/routes/lead.routes";
-// import { authRoutes } from "./modules/auth/routes/auth.routes";
-// import { userRoutes } from "./modules/users/routes/user.routes";
-// import { paymentRoutes } from "./modules/payments/routes/payment.routes";
-// import { formatGraphQLError } from "./shared/utils/Formaterror";
-// import { InstagramPost } from "./modules/instagram/models/instagram-post.model";
-// import { syncApifyInstagramFeed } from "./modules/instagram/instagram-sync";
-
-// export async function createApp(): Promise<Express> {
-//   const app = express();
- 
-//   // Security & core middleware
-// app.use(
-//   helmet({
-//     // 🚀 FIX: Disable CSP in development so Apollo Sandbox isn't blocked by the browser.
-//     // It remains fully active with default secure settings in production.
-//     contentSecurityPolicy: process.env.NODE_ENV === "production" ? undefined : false,
-    
-//     // Fixes Cross-Origin Resource Policy blocking the iframe assets
-//     crossOriginEmbedderPolicy: process.env.NODE_ENV === "production" ? undefined : false,
-//   })
-// );
-
-
-//   // app.use(
-//   //   cors({
-//   //     origin: process.env.NODE_ENV === "production" ? env.clientUrl : true, // True allows all origins (including playground interface) in dev
-//   //     credentials: true,
-//   //   })
-//   // );
-
-// app.use(
-//   cors({
-//     origin: (origin, callback) => {
-//       // 1. Define allowed origins for development
-//       const developmentOrigins = [
-//         "http://localhost:9000", 
-//         "http://localhost:3000", 
-//         "https://sandbox.embed.apollographql.com", 
-//         "https://embed.apollo.io",
-//         "**.cdninstagram.com", "**.fbcdn.net", "proxy.apify.com"
-//       ];
-
-//       // 2. Safely add CLIENT_URL if it exists in the environment strings
-//       if (process.env.CLIENT_URL) {
-//         developmentOrigins.push(process.env.CLIENT_URL);
-//       }
-
-//       // 3. Select final rule bundle based on environment
-//       const allowedOrigins = process.env.NODE_ENV === "production"
-//         ? [process.env.CLIENT_URL].filter(Boolean) as string[]
-//         : developmentOrigins;
-
-//       // Allow server-to-server or tools like Postman/Insomnia (where origin is undefined)
-//       if (!origin || allowedOrigins.includes(origin)) {
-//         callback(null, true);
-//       } else {
-//         callback(new Error(`CORS policy blocked access from origin: ${origin}`));
-//       }
-//     },
-//     credentials: true,
-//   })
-// );
-
-
-
-//   app.use(hpp());
-//   app.use(express.json({ limit: "2mb" }));
-//   app.use(sanitizeInput);
-//   app.use(generalLimiter);
- 
-//   // Health check
-//   app.get("/health", (_req, res) => {
-//     res.status(200).json({ success: true, message: "RESOS API is running" });
-//   });
- 
-//   // REST routes
-//   app.use("/api/auth", authRoutes);
-//   app.use("/api/users", userRoutes);
-//   app.use("/api/leads", leadRoutes);
-//   app.use("/api/payments", paymentRoutes);
-//   app.use("/api/properties", propertyRoutes);
-
-//   /**
-//    * GET: Serves cached posts to your website instantly
-//    */
-//   app.get('/api/instagram-feed', async (req: Request, res: Response): Promise<void> => {
-//     try {
-//       const feed = await InstagramPost.find().sort({ timestamp: -1 }).limit(12);
-//       res.status(200).json(feed);
-//     } catch (error) {
-//       res.status(500).json({ error: 'Failed to retrieve feed records' });
-//     }
-//   });
-
-//   /**
-//    * POST: Manually triggers the standalone scraper background synchronization
-//    */
-//   app.post('/api/sync-feed', (req: Request, res: Response): void => {
-//     syncApifyInstagramFeed();
-//     res.status(202).json({ 
-//       message: 'Apify scraper job successfully dispatched to background loop.' 
-//     });
-//   });
- 
-//   // Apollo GraphQL Server with active Playground Plugin configuration
-// const apolloServer = new ApolloServer({ 
-//     schema,
-//     formatError: formatGraphQLError,
-//     plugins: [
-//       ApolloServerPluginLandingPageLocalDefault({
-//         embed: true,        
-//         includeCookies: true 
-//       })
-//     ],
-//   });
-
-//   await apolloServer.start();
- 
-//   app.use(
-//     "/graphql",
-//     express.json(),
-//     expressMiddleware(apolloServer as any, {
-//       context: buildContext,
-//     })
-//   );
- 
-//   // 404 + global error handler (must be last)
-//   app.use(notFoundHandler);
-//   app.use(errorHandler);
- 
-//   return app;
-// }

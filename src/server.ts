@@ -37,7 +37,7 @@ async function bootstrap() {
     await serverCleanup.dispose();
     httpServer.close(async () => {
       await disconnectDatabase();
-      redis.disconnect();
+      redis?.disconnect();
       logger.info("Shutdown complete");
       process.exit(0);
     });
