@@ -31,7 +31,6 @@ import { analyticsResolvers } from "@/src/modules/analytics/graphql/analytics.re
 
 import { scalarTypeDefs, scalarResolvers } from "@/src/shared/graphql/scalar";
 
-
 const typeDefs = mergeTypeDefs([
    scalarTypeDefs,
   authTypeDefs,
