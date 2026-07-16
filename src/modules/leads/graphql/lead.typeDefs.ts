@@ -68,12 +68,24 @@ export const leadTypeDefs = gql`
     clientEmail: String
     property: ID
     assignedAgent: ID!
+    stage: LeadStage!
   }
+
+  
+  input UpdateLeadInput {
+    clientName: String
+    clientPhone: String
+    clientEmail: String
+    property: ID!
+    stage: LeadStage!
+  }
+
 
   input ScheduleInspectionInput {
     scheduledAt: String!
     location: String!
     notes: String
+    stage: LeadStage!
   }
 
   input LeadFilterInput {
@@ -93,6 +105,7 @@ export const leadTypeDefs = gql`
 
   extend type Mutation {
     createLead(input: CreateLeadInput!): Lead!
+    updateLead(id: ID!, input: UpdateLeadInput!): Lead!
     updateLeadStage(id: ID!, stage: LeadStage!): Lead!
     reassignLead(id: ID!, agentId: ID!): Lead!
     addLeadActivity(id: ID!, note: String!): Lead!

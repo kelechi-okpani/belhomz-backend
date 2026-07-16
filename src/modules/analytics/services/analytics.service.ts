@@ -12,23 +12,12 @@ interface AuthedUser {
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
 export class AnalyticsService {
-  /**
-   * Single entry point for everything the dashboard needs. One call,
-   * one round trip — the alternative (a Query per widget: salesFunnel,
-   * topAgents, myPerformance, revenueTrend, activities, ...) meant the
-   * frontend had to know which queries applied to which role and fire
-   * off five or six separate requests on every dashboard load. Here,
-   * the role-based decision of "what does this person actually get to
-   * see" lives in exactly one place, server-side, and the response
-   * simply omits (returns null for) sections a role isn't entitled to
-   * — the same rule the resolvers already enforce individually, just
-   * centralized instead of duplicated per-field.
-   */
+
   async getAnalytics(user: AuthedUser) {
     const isOwner = user.role === UserRole.OWNER;
-    const isAgent = user.role === UserRole.AGENT;
+    const isAgentOrStaff = user.role === UserRole.AGENT || user.role === UserRole.STAFF;
     const canViewPayments = isOwner;
-
+ 
     const [
       todaysLeadCount,
       propertyAvailability,
@@ -54,9 +43,9 @@ export class AnalyticsService {
       canViewPayments ? paymentService.monthlyRevenue() : Promise.resolve(null),
       canViewPayments ? paymentService.pending() : Promise.resolve(null),
       canViewPayments ? paymentService.overdue() : Promise.resolve(null),
-      isAgent ? leadService.myPerformance(user.id) : Promise.resolve(null),
+      isAgentOrStaff ? leadService.myPerformance(user.id) : Promise.resolve(null),
     ]);
-
+ 
     return {
       todaysLeadCount,
       propertyAvailability,
@@ -73,5 +62,5 @@ export class AnalyticsService {
     };
   }
 }
-
+ 
 export const analyticsService = new AnalyticsService();

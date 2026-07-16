@@ -20,15 +20,15 @@ router.use(authenticate);
 router.get("/funnel", requireRole(UserRole.OWNER), salesFunnel);
 router.get("/top-agents", requireRole(UserRole.OWNER), topAgents);
 
-router.post("/", requireRole(UserRole.OWNER, UserRole.AGENT), createLead);
+router.post("/", requireRole(UserRole.OWNER, UserRole.AGENT, UserRole.STAFF), createLead);
 router.get("/", listLeads);
 router.get("/:id", getLead);
-router.patch("/:id/stage", requireRole(UserRole.OWNER, UserRole.AGENT), updateLeadStage);
+router.patch("/:id/stage", requireRole(UserRole.OWNER, UserRole.AGENT, UserRole.STAFF), updateLeadStage);
 router.patch("/:id/reassign", requireRole(UserRole.OWNER), reassignLead);
-router.post("/:id/activities", requireRole(UserRole.OWNER, UserRole.AGENT), addLeadActivity);
+router.post("/:id/activities", requireRole(UserRole.OWNER, UserRole.AGENT, UserRole.STAFF), addLeadActivity);
 router.post(
   "/:id/inspection",
-  requireRole(UserRole.OWNER, UserRole.AGENT),
+  requireRole(UserRole.OWNER, UserRole.AGENT, UserRole.STAFF),
   scheduleInspection
 );
 

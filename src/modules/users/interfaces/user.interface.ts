@@ -2,7 +2,6 @@ export enum UserRole {
   OWNER = "OWNER",
   AGENT = "AGENT",
   STAFF = "STAFF",
-  FINANCE = "FINANCE",
 }
 
 export interface IUser {

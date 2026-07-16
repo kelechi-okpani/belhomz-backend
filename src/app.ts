@@ -171,7 +171,7 @@ app.use(
   // Apollo GraphQL Server
   const apolloServer = new ApolloServer({ 
     schema,
-      introspection: true,
+    introspection: true,
     formatError: formatGraphQLError,
     plugins: [
       ApolloServerPluginLandingPageLocalDefault({

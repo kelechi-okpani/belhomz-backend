@@ -28,7 +28,7 @@ export const propertyResolvers = {
 
   Mutation: {
     createProperty: async (_: unknown, args: { input: unknown }, ctx: GraphQLContext) => {
-      const user = requireRoles(ctx, UserRole.OWNER, UserRole.AGENT);
+      const user = requireRoles(ctx, UserRole.OWNER, UserRole.STAFF);
       const input = createPropertySchema.parse(args.input);
       return propertyService.create(input, user.id);
     },
@@ -38,7 +38,7 @@ export const propertyResolvers = {
       args: { id: string; input: unknown },
       ctx: GraphQLContext
     ) => {
-      requireRoles(ctx, UserRole.OWNER, UserRole.AGENT);
+      requireRoles(ctx, UserRole.OWNER, UserRole.STAFF);
       const input = updatePropertySchema.parse(args.input);
       return propertyService.update(args.id, input);
     },
@@ -48,12 +48,12 @@ export const propertyResolvers = {
       args: { id: string; status: PropertyStatus },
       ctx: GraphQLContext
     ) => {
-      requireRoles(ctx, UserRole.OWNER, UserRole.AGENT);
+      requireRoles(ctx, UserRole.OWNER, UserRole.STAFF);
       return propertyService.updateStatus(args.id, args.status);
     },
     
     deleteProperty: async (_: unknown, args: { id: string }, ctx: GraphQLContext) => {
-      requireRoles(ctx, UserRole.OWNER);
+      requireRoles(ctx, UserRole.OWNER, UserRole.STAFF);
       await propertyService.delete(args.id);
       return true;
     },

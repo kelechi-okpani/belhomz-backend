@@ -12,6 +12,15 @@ export class LeadRepository {
     return LeadModel.create(data);
   }
 
+
+  async update(id: string, data: Partial<LeadDocument>): Promise<LeadDocument | null> {
+    return LeadModel.findByIdAndUpdate(
+      id,
+      { $set: data },
+      { new: true, runValidators: true }
+    ).exec();
+  }
+
   async findById(id: string): Promise<LeadDocument | null> {
     return LeadModel.findById(id).exec();
   }

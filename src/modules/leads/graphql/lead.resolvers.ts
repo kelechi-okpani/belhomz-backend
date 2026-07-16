@@ -7,6 +7,7 @@ import {
   createLeadSchema,
   addActivitySchema,
   scheduleInspectionSchema,
+  updateLeadSchema,
 } from "../validators/lead.validator";
 
 export const leadResolvers = {
@@ -14,8 +15,8 @@ export const leadResolvers = {
     leads: async (_: unknown, args: { filter?: { assignedAgent?: string; stage?: LeadStage } }, ctx: GraphQLContext) => {
       const user = requireAuth(ctx);
       const filter = args.filter ?? {};
-      // Agents only ever see their own leads, regardless of what filter they pass
-      if (user.role === UserRole.AGENT) filter.assignedAgent = user.id;
+      // Agents and staff only ever see their own leads, regardless of what filter they pass
+      if (user.role === UserRole.AGENT || user.role === UserRole.STAFF) filter.assignedAgent = user.id;
       return leadService.list(filter);
     },
     lead: async (_: unknown, args: { id: string }, ctx: GraphQLContext) => {
@@ -23,7 +24,7 @@ export const leadResolvers = {
       return leadService.getById(args.id);
     },
     salesFunnel: async (_: unknown, __: unknown, ctx: GraphQLContext) => {
-      requireRoles(ctx, UserRole.OWNER);
+      requireRoles(ctx, UserRole.OWNER,);
       return leadService.salesFunnel();
     },
     todaysLeadCount: async (_: unknown, __: unknown, ctx: GraphQLContext) => {
@@ -35,7 +36,7 @@ export const leadResolvers = {
       return leadService.topAgents();
     },
     myPerformance: async (_: unknown, __: unknown, ctx: GraphQLContext) => {
-      const user = requireRoles(ctx, UserRole.AGENT);
+      const user = requireRoles(ctx, UserRole.AGENT, UserRole.STAFF);
       return leadService.myPerformance(user.id);
     },
     allAgentPerformance: async (_: unknown, __: unknown, ctx: GraphQLContext) => {
@@ -45,16 +46,21 @@ export const leadResolvers = {
   },
   Mutation: {
     createLead: async (_: unknown, args: { input: unknown }, ctx: GraphQLContext) => {
-      const actor = requireRoles(ctx, UserRole.OWNER, UserRole.AGENT);
+      const actor = requireRoles(ctx, UserRole.OWNER, UserRole.AGENT, UserRole.STAFF);
       const input = createLeadSchema.parse(args.input);
       return leadService.create(input, actor.id);
+    },
+    updateLead: async (_: unknown, args: { id: string; input: unknown }, ctx: GraphQLContext) => {
+      const actor = requireRoles(ctx, UserRole.OWNER, UserRole.AGENT, UserRole.STAFF);
+      const input = updateLeadSchema.parse(args.input);
+      return leadService.update(args.id, input, actor.id);
     },
     updateLeadStage: async (
       _: unknown,
       args: { id: string; stage: LeadStage },
       ctx: GraphQLContext
     ) => {
-      const actor = requireRoles(ctx, UserRole.OWNER, UserRole.AGENT);
+      const actor = requireRoles(ctx, UserRole.OWNER, UserRole.AGENT, UserRole.STAFF);
       return leadService.updateStage(args.id, args.stage, actor.id);
     },
     reassignLead: async (
@@ -79,7 +85,7 @@ export const leadResolvers = {
       args: { id: string; input: unknown },
       ctx: GraphQLContext
     ) => {
-      const actor = requireRoles(ctx, UserRole.OWNER, UserRole.AGENT);
+      const actor = requireRoles(ctx, UserRole.OWNER, UserRole.AGENT, UserRole.STAFF);
       const input = scheduleInspectionSchema.parse(args.input);
       return leadService.scheduleInspection(
         args.id,

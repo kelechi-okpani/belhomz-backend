@@ -13,7 +13,8 @@ import { activityFeedService } from "../../../shared/activity/services/activity.
 import { ActivityType } from "../../../shared/activity/models/activity.model";
 
 const RESET_TOKEN_PREFIX = "password_reset:";
-const RESET_TOKEN_TTL_SECONDS = 30 * 60; // 30 minutes
+const RESET_TOKEN_TTL_SECONDS = 2 * 60 * 60; // 2 hours (formerly 30 mins)
+// const RESET_TOKEN_TTL_SECONDS = 30 * 60; // 30 minutes
 
 function hashToken(token: string): string {
   return crypto.createHash("sha256").update(token).digest("hex");

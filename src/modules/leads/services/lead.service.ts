@@ -28,6 +28,22 @@ export class LeadService {
     return leadRepository.find(filter);
   }
 
+
+  async update(id: string, data: Record<string, unknown>, actor?: string) {
+    // Call repository update (ensure leadRepository.update exists or uses findByIdAndUpdate)
+    const lead = await leadRepository.update(id, data as any);
+    if (!lead) throw ApiError.notFound("Lead not found");
+
+    await activityFeedService.record({
+      type: ActivityType.LEAD_STAGE_CHANGED, // Or custom update type if defined
+      message: `Updated details for lead: ${lead.clientName}`,
+      entityType: "Lead",
+      entityId: (lead as any)._id,
+      actor,
+    });
+    return lead;
+  }
+
   async updateStage(id: string, stage: LeadStage, actor?: string) {
     const lead = await leadRepository.updateStage(id, stage);
     if (!lead) throw ApiError.notFound("Lead not found");

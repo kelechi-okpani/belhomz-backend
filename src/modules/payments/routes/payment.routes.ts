@@ -13,7 +13,7 @@ import {
 
 const router = Router();
 
-router.use(authenticate, requireRole(UserRole.OWNER, UserRole.FINANCE));
+router.use(authenticate, requireRole(UserRole.OWNER));
 
 router.get("/pending", pendingPayments);
 router.get("/overdue", overduePayments);
