@@ -9,6 +9,7 @@ import {
   reassignLead,
   addLeadActivity,
   scheduleInspection,
+  rescheduleInspection,
   salesFunnel,
   topAgents,
 } from "../controllers/lead.controller";
@@ -30,6 +31,11 @@ router.post(
   "/:id/inspection",
   requireRole(UserRole.OWNER, UserRole.AGENT, UserRole.STAFF),
   scheduleInspection
+);
+router.patch(
+  "/:id/inspection",
+  requireRole(UserRole.OWNER, UserRole.AGENT, UserRole.STAFF),
+  rescheduleInspection
 );
 
 export { router as leadRoutes };

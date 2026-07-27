@@ -88,6 +88,12 @@ export const leadTypeDefs = gql`
     stage: LeadStage!
   }
 
+  input RescheduleInspectionInput {
+    scheduledAt: String
+    location: String
+    notes: String
+  }
+
   input LeadFilterInput {
     assignedAgent: ID
     stage: LeadStage
@@ -110,5 +116,6 @@ export const leadTypeDefs = gql`
     reassignLead(id: ID!, agentId: ID!): Lead!
     addLeadActivity(id: ID!, note: String!): Lead!
     scheduleInspection(id: ID!, input: ScheduleInspectionInput!): Lead!
+    rescheduleInspection(id: ID!, input: RescheduleInspectionInput!): Lead!
   }
 `;

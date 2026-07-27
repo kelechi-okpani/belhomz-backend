@@ -12,12 +12,14 @@ interface AuthedUser {
 const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
 export class AnalyticsService {
-
   async getAnalytics(user: AuthedUser) {
     const isOwner = user.role === UserRole.OWNER;
     const isAgentOrStaff = user.role === UserRole.AGENT || user.role === UserRole.STAFF;
     const canViewPayments = isOwner;
- 
+
+    // Filter params: OWNER gets undefined (global stats), non-owners get their user ID
+    const scopeUserId = isOwner ? undefined : user.id;
+
     const [
       todaysLeadCount,
       propertyAvailability,
@@ -32,20 +34,26 @@ export class AnalyticsService {
       overduePayments,
       myPerformance,
     ] = await Promise.all([
-      leadService.todaysLeadCount(),
-      propertyService.availabilitySnapshot(),
+      leadService.todaysLeadCount(scopeUserId),
+      propertyService.availabilitySnapshot(scopeUserId),
       activityFeedService.statsForActor(user.id, new Date(Date.now() - THIRTY_DAYS_MS)),
-      activityFeedService.recent(20),
+      activityFeedService.recent(20, scopeUserId),
+
+      // OWNER-only aggregations
       isOwner ? leadService.salesFunnel() : Promise.resolve(null),
       isOwner ? leadService.topAgents() : Promise.resolve(null),
       isOwner ? leadService.allAgentPerformance() : Promise.resolve(null),
+
+      // OWNER & FINANCE metrics
       canViewPayments ? paymentService.revenueTrend(6) : Promise.resolve(null),
       canViewPayments ? paymentService.monthlyRevenue() : Promise.resolve(null),
       canViewPayments ? paymentService.pending() : Promise.resolve(null),
       canViewPayments ? paymentService.overdue() : Promise.resolve(null),
+
+      // AGENT/STAFF specific performance
       isAgentOrStaff ? leadService.myPerformance(user.id) : Promise.resolve(null),
     ]);
- 
+
     return {
       todaysLeadCount,
       propertyAvailability,
@@ -62,5 +70,5 @@ export class AnalyticsService {
     };
   }
 }
- 
+
 export const analyticsService = new AnalyticsService();

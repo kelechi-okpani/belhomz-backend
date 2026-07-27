@@ -9,6 +9,7 @@ import {
   updateStageSchema,
   addActivitySchema,
   scheduleInspectionSchema,
+  rescheduleInspectionSchema,
 } from "../validators/lead.validator";
 
 export const createLead = catchAsync(async (req: Request | any, res: Response) => {
@@ -25,7 +26,6 @@ export const listLeads = catchAsync(async (req: Request | any, res: Response) =>
     assignedAgent: req.query.assignedAgent as string | undefined,
   };
 
-  // Agents only ever see their own leads, same rule as the GraphQL resolver
   if (req.user.role === UserRole.AGENT) filter.assignedAgent = req.user.id;
 
   const leads = await leadService.list(filter as any);
@@ -64,6 +64,15 @@ export const scheduleInspection = catchAsync(async (req: Request | any, res: Res
     scheduledAt: new Date(input.scheduledAt),
   });
   return sendSuccess(res, 200, lead, "Inspection scheduled");
+});
+
+export const rescheduleInspection = catchAsync(async (req: Request | any, res: Response) => {
+  const input = rescheduleInspectionSchema.parse(req.body);
+  const lead = await leadService.rescheduleInspection(req.params.id, {
+    ...input,
+    scheduledAt: input.scheduledAt ? new Date(input.scheduledAt) : undefined,
+  });
+  return sendSuccess(res, 200, lead, "Inspection rescheduled");
 });
 
 export const salesFunnel = catchAsync(async (_req: Request | any, res: Response) => {

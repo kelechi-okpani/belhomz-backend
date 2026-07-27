@@ -71,8 +71,13 @@ export class PropertyRepository {
     return PropertyModel.findByIdAndDelete(id).exec();
   }
 
-  async countByStatus(status: PropertyStatus): Promise<number> {
-    return PropertyModel.countDocuments({ status });
+  // Accepts optional userId to filter count by the creator/owner
+  async countByStatus(status: PropertyStatus, userId?: string): Promise<number> {
+    const query: Record<string, unknown> = { status };
+    if (userId) {
+      query.createdBy = userId;
+    }
+    return PropertyModel.countDocuments(query);
   }
 }
 

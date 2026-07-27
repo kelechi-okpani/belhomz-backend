@@ -14,10 +14,7 @@ interface RecordActivityInput {
 export class ActivityFeedService {
   /**
    * Persists an activity for history, and publishes it immediately to
-   * any connected GraphQL subscription clients. Never throws — a failure
-   * here (e.g. Redis briefly unavailable) should never break the actual
-   * business operation (creating a lead, recording a payment, etc.) that
-   * triggered it.
+   * any connected GraphQL subscription clients.
    */
   async record(input: RecordActivityInput): Promise<void> {
     try {
@@ -30,13 +27,17 @@ export class ActivityFeedService {
     }
   }
 
-  async recent(limit = 30) {
-    return ActivityModel.find().sort({ createdAt: -1 }).limit(limit).exec();
+  // Accepts optional actorId to restrict recent logs per user
+  async recent(limit = 30, actorId?: string) {
+    const query: Record<string, unknown> = {};
+    if (actorId) {
+      query.actor = new Types.ObjectId(actorId);
+    }
+    return ActivityModel.find(query).sort({ createdAt: -1 }).limit(limit).exec();
   }
 
   /**
-   * Per-user activity breakdown — used for Staff/Agent "my activity"
-   * stats (e.g. how many notes a front-desk STAFF member has logged).
+   * Per-user activity breakdown — used for Staff/Agent "my activity" stats.
    */
   async statsForActor(actorId: string, since?: Date) {
     const match: Record<string, unknown> = { actor: new Types.ObjectId(actorId) };

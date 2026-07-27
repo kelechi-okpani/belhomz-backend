@@ -1,5 +1,6 @@
 import { UserModel, UserDocument } from "../../users/models/user.model";
 
+
 export class UserRepository {
   async findByEmail(email: string, includePassword = false): Promise<UserDocument | null> {
     const query = UserModel.findOne({ email: email.toLowerCase() });
@@ -30,7 +31,8 @@ export class UserRepository {
   /**
    * Updates a user's password. Deliberately uses findById + save() rather
    * than findByIdAndUpdate, since the latter bypasses the pre("save")
-   * password-hashing hook on the model.
+   * password-hashing hook on the model. Explicitly selects +password since
+   * it's excluded by default on the schema.
    */
   async updatePassword(id: string, newPassword: string): Promise<UserDocument | null> {
     const user = await UserModel.findById(id).select("+password");

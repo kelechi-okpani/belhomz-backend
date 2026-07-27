@@ -74,6 +74,13 @@ export async function createApp(): Promise<Express> {
       "https://sandbox.embed.apollographql.com",
       "https://embed.apollo.io",
 
+
+       "https://www.instagram.com",
+        "https://res.cloudinary.com",
+        "https://*.instagram.com",
+       "https://www.google-analytics.com",
+        "https://*.cdninstagram.com",
+
       // Optional env variables
       process.env.CLIENT_URL,
       process.env.RENDER_EXTERNAL_URL,

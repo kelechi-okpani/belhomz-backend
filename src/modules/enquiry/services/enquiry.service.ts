@@ -31,7 +31,7 @@ export class EnquiryService {
       pagination: {
         total,
         page,
-        pages: Math.ceil(total / limit),
+        pages: Math.ceil(total / limit) || 1,
       },
     };
   }

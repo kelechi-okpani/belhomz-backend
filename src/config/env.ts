@@ -14,8 +14,6 @@ export const env = {
   port: Number(process.env.PORT ?? 4000),
   clientUrl: process.env.CLIENT_URL ?? "http://localhost:3000",
 
-  CLIENT_RESET_PASSWORD_URL: process.env.CLIENT_RESET_PASSWORD_URL,
-  
   mongoUri: required("MONGO_URI"),
 
   jwt: {
@@ -27,12 +25,14 @@ export const env = {
 
   redisUrl: process.env.REDIS_URL ?? "redis://localhost:6379",
 
-  email: {
+    email: {
     host: process.env.SMTP_HOST ?? "",
     port: Number(process.env.SMTP_PORT ?? 587),
-    user: process.env.SMTP_USER ?? "",
-    pass: process.env.SMTP_PASS ?? "",
-    from: process.env.EMAIL_FROM ?? "RESOS <no-reply@resos.app>",
+    user: process.env.SMTP_EMAIL ?? "",
+    pass: process.env.SMTP_PASSWORD ?? "",
+    from: process.env.FROM_EMAIL
+      ? `"${process.env.FROM_NAME ?? "BELHOMZ"}" <${process.env.FROM_EMAIL}>`
+      : "BELHOMZ <no-reply@belhomz.app>",
   },
 
   clientResetPasswordUrl:

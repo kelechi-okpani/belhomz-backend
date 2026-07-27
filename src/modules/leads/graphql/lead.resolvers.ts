@@ -7,6 +7,7 @@ import {
   createLeadSchema,
   addActivitySchema,
   scheduleInspectionSchema,
+  rescheduleInspectionSchema,
   updateLeadSchema,
 } from "../validators/lead.validator";
 
@@ -93,5 +94,24 @@ export const leadResolvers = {
         actor.id
       );
     },
+    
+      rescheduleInspection: async (
+  _: unknown,
+  args: { id: string; input: unknown },
+  ctx: GraphQLContext
+) => {
+  const actor = requireRoles(ctx, UserRole.OWNER, UserRole.AGENT, UserRole.STAFF);
+  const { scheduledAt, ...rest } = rescheduleInspectionSchema.parse(args.input);
+
+  return await leadService.rescheduleInspection(
+    args.id,
+    {
+      ...rest,
+      ...(scheduledAt ? { scheduledAt: new Date(scheduledAt) } : {}),
+    },
+    actor.id
+  );
+},
+
   },
 };

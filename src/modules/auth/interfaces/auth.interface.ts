@@ -6,9 +6,15 @@ export interface AccessTokenPayload {
   role: UserRole;
 }
 
+// export interface RefreshTokenPayload {
+//   sub: string;
+//   tokenVersion: number;
+// }
+
 export interface RefreshTokenPayload {
   sub: string;
   tokenVersion: number;
+  sessionStart: number; // epoch ms — when this login session began, never resets on refresh
 }
 
 export interface AuthTokens {

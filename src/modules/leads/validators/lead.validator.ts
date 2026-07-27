@@ -36,6 +36,12 @@ export const scheduleInspectionSchema = z.object({
 });
 
 
+export const rescheduleInspectionSchema = z.object({
+  scheduledAt: z.string().datetime({ message: "Invalid ISO date string" }).optional(),
+  location: z.string().min(1).optional(),
+  notes: z.string().optional(),
+});
+
 export const updateStageSchema = z.object({
   stage: z.nativeEnum(LeadStage),
 });

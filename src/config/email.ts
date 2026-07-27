@@ -14,15 +14,16 @@ const transporter = hasSmtpConfig
   ? nodemailer.createTransport({
       host: env.email.host,
       port: env.email.port,
-      secure: env.email.port === 465,
-      auth: { user: env.email.user, pass: env.email.pass },
+      secure: env.email.port === 465, // 465 = implicit TLS, 587 = STARTTLS
+      auth: {
+        user: env.email.user,
+        pass: env.email.pass,
+      },
     })
   : null;
 
 export async function sendEmail({ to, subject, html }: SendEmailInput): Promise<void> {
   if (!transporter) {
-    // Dev fallback: no SMTP configured yet — log instead of failing,
-    // so password reset flows are still testable before mail is wired up.
     logger.warn(`[email:dev-fallback] Would send to ${to} — "${subject}"`);
     logger.warn(`[email:dev-fallback] ${html}`);
     return;

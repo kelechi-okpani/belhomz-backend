@@ -26,6 +26,20 @@ export class UserRepository {
   async setActive(id: string, isActive: boolean): Promise<UserDocument | null> {
     return UserModel.findByIdAndUpdate(id, { isActive }, { new: true }).exec();
   }
+
+  /**
+   * Updates a user's password. Deliberately uses findById + save() rather
+   * than findByIdAndUpdate, since the latter bypasses the pre("save")
+   * password-hashing hook on the model. Explicitly selects +password since
+   * it's excluded by default on the schema.
+   */
+  async updatePassword(id: string, newPassword: string): Promise<UserDocument | null> {
+    const user = await UserModel.findById(id).select("+password");
+    if (!user) return null;
+    user.password = newPassword;
+    await user.save();
+    return user;
+  }
 }
 
 export const userRepository = new UserRepository();

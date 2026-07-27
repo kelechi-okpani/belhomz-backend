@@ -12,7 +12,6 @@ export class LeadRepository {
     return LeadModel.create(data);
   }
 
-
   async update(id: string, data: Partial<LeadDocument>): Promise<LeadDocument | null> {
     return LeadModel.findByIdAndUpdate(
       id,
@@ -48,7 +47,7 @@ export class LeadRepository {
     ).exec();
   }
 
-  async setInspection(
+async setInspection(
     id: string,
     inspection: { scheduledAt: Date; location: string; notes?: string }
   ): Promise<LeadDocument | null> {
@@ -59,14 +58,44 @@ export class LeadRepository {
     ).exec();
   }
 
+  /**
+   * Partially updates an already-booked inspection (date/location/notes)
+   * without touching `completed` or replacing the whole subdocument.
+   */
+  async rescheduleInspection(
+    id: string,
+    updates: { scheduledAt?: Date; location?: string; notes?: string }
+  ): Promise<LeadDocument | null> {
+    const setFields: Record<string, unknown> = {};
+    if (updates.scheduledAt !== undefined) setFields["inspection.scheduledAt"] = updates.scheduledAt;
+    if (updates.location !== undefined) setFields["inspection.location"] = updates.location;
+    if (updates.notes !== undefined) setFields["inspection.notes"] = updates.notes;
+
+    return LeadModel.findByIdAndUpdate(
+      id,
+      { $set: setFields },
+      { new: true, runValidators: true }
+    ).exec();
+  }
+
   async countByStage(stage: LeadStage): Promise<number> {
     return LeadModel.countDocuments({ stage });
   }
 
-  async countCreatedToday(): Promise<number> {
+  // Updated to accept optional agentId to filter leads created today for a specific agent
+  async countCreatedToday(agentId?: string): Promise<number> {
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
-    return LeadModel.countDocuments({ createdAt: { $gte: startOfDay } });
+
+    const query: Record<string, unknown> = {
+      createdAt: { $gte: startOfDay },
+    };
+
+    if (agentId) {
+      query.assignedAgent = new Types.ObjectId(agentId);
+    }
+
+    return LeadModel.countDocuments(query);
   }
 
   async countClosedWonByAgent(): Promise<{ agentId: string; count: number }[]> {
@@ -80,8 +109,7 @@ export class LeadRepository {
 
   /**
    * Full pipeline breakdown for a single agent — how many leads they have
-   * in each stage, plus totals and a conversion rate. Powers both the
-   * agent's own "My Performance" view and the Owner's per-agent drill-down.
+   * in each stage, plus totals and a conversion rate.
    */
   async statsForAgent(agentId: string) {
     const results = await LeadModel.aggregate([
@@ -106,16 +134,12 @@ export class LeadRepository {
       byStage: Object.entries(byStage).map(([stage, count]) => ({ stage, count })),
       closedWon,
       closedLost,
-      // Conversion rate is only meaningful once a lead has actually
-      // closed one way or the other — leads still mid-pipeline shouldn't
-      // drag the rate down artificially.
       conversionRate: closedTotal > 0 ? Math.round((closedWon / closedTotal) * 100) : 0,
     };
   }
 
   /**
-   * Same breakdown, for every agent that currently has at least one lead
-   * assigned — used for the Owner's full team leaderboard.
+   * Same breakdown, for every agent that currently has at least one lead assigned.
    */
   async statsForAllAgents() {
     const agentIds = await LeadModel.distinct("assignedAgent");
