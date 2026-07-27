@@ -4,8 +4,10 @@ import { LeadStage } from "../interfaces/lead.interface";
 import { activityFeedService } from "../../../shared/activity/services/activity.service";
 import { ActivityType } from "../../../shared/activity/models/activity.model";
 import { userRepository } from "../../users/repositories/user.repository";
-import { sendEmail } from "@/src/config/email";
-import { buildInspectionEmail } from "@/src/helper/lead.templates";
+import { sendEmail } from "../../../config/email";
+import { buildInspectionEmail } from "../../../helper/lead.templates";
+
+
 
 
 
